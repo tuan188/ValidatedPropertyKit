@@ -56,6 +56,11 @@ public struct Validated<Value>: Validatable, DynamicProperty {
         )
     }
     
+    /// The error message associated with the validation failure.
+    /// This property is read-only outside of the struct/class but can be set privately within.
+    /// Default value is `nil`.
+    public private(set) var errorMessage: String?
+    
     // MARK: Initializer
     
     /// Creates a new instance of `Validated`
@@ -74,6 +79,21 @@ public struct Validated<Value>: Validatable, DynamicProperty {
             initialValue: validation
                 .validate(wrappedValue)
         )
+    }
+    
+    
+    /// Creates a new instance of `Validated`
+    /// - Parameters:
+    ///   - wrappedValue: The wrapped `Value`
+    ///   - validation: The `Validation`
+    ///   - errorMessage: A custom error message when validation fails
+    public init(
+        wrappedValue: Value,
+        _ validation: Validation<Value>,
+        errorMessage: String
+    ) {
+        self.init(wrappedValue: wrappedValue, validation)
+        self.errorMessage = errorMessage
     }
     
     /// Creates a new instance of `Validated`
@@ -95,6 +115,27 @@ public struct Validated<Value>: Validatable, DynamicProperty {
         )
     }
     
+    /// Creates a new instance of `Validated` for optional values with a custom error message
+    /// - Parameters:
+    ///   - wrappedValue: The optional `WrappedValue`. Default value `nil`
+    ///   - validation: The `Validation`
+    ///   - errorMessage: A custom error message when validation fails
+    ///   - isNilValid: A closure that returns a Boolean value indicating if `nil` should be considered valid. Default value `false`
+    public init<WrappedValue>(
+        wrappedValue: WrappedValue? = nil,
+        _ validation: Validation<WrappedValue>,
+        errorMessage: String,
+        isNilValid: @autoclosure @escaping () -> Bool = false
+    ) where WrappedValue? == Value {
+        self.init(
+            wrappedValue: wrappedValue,
+            .init(
+                validation,
+                isNilValid: isNilValid()
+            )
+        )
+        self.errorMessage = errorMessage
+    }
 }
 
 // MARK: - Validated+validatedValue
