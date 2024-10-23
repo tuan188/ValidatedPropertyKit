@@ -79,6 +79,7 @@ public struct Validated<Value>: Validatable, DynamicProperty {
             initialValue: validation
                 .validate(wrappedValue)
         )
+        self.wrappedValue = wrappedValue
     }
     
     
